@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "start:debug": "node index.js --debug",
+    "clean": "find ./ -type f -name 'exported-categories-*.json' -delete"
   },
   "author": "",
   "license": "ISC",

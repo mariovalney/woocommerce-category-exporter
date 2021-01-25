@@ -6,4 +6,10 @@ Check the `.env.sample` file and create your own `.env`.
 
 You should use a user with reading permission to WooCommerce categories.
 
-Run `npm start` and wait.
+Run `npm run start` to export a formated (plain) categories list.
+
+### Commands:
+
+Run `npm run clean` to remove all `exported-categories-*.json` files.
+
+Run `npm run start:debug` to export the categories and keep the JSON from WooCommerce.

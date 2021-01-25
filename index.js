@@ -84,7 +84,7 @@ async function getCategoriesFromMarketplace() {
     .catch(error => { throw new Error(error) });
   }
 
-  console.log('Vamos criar o arquivo com as ' + categories.length + ' categorias;');
+  console.log('Vamos criar o arquivo com as ' + categories.length + ' categorias.');
 
   return new Promise(resolve => { resolve(categories); });
 }
@@ -102,7 +102,11 @@ function parseCategoriesJson(json) {
     });
   });
 
-  while (_.find(categories, category => { return category.parent || false; } )) {
+  console.log('Organizando subcategorias.');
+
+  let childCategories = [];
+  let lastChildCategoriesLength = 0;
+  do {
     const parents = _.filter(categories, { parent: 0 });
 
     categories = _.map(categories, category => {
@@ -122,7 +126,17 @@ function parseCategoriesJson(json) {
 
       return category;
     });
+
+    childCategories = _.filter(categories, category => { return category.parent || false; } );
+    if (lastChildCategoriesLength && lastChildCategoriesLength === childCategories.length) {
+      console.log('Atenção! Existe(m) ' + lastChildCategoriesLength + ' subcategoria(s) sem um pai identificado:');
+      console.log(_.map(childCategories, 'name'));
+      break;
+    }
+
+    lastChildCategoriesLength = childCategories.length;
   }
+  while (lastChildCategoriesLength);
 
   categories = _.map(categories, category => {
     return {
@@ -143,8 +157,14 @@ function parseCategoriesJson(json) {
   const website = url.parse(BASE_URL).hostname.replace(/\./g, '-');
   const filename = 'exported-categories-' + website + '-' + getFormattedTime() + '.json';
 
-  fs.writeFileSync(filename, JSON.stringify(categories, null, "    "));
+  fs.writeFileSync(filename, JSON.stringify(categories, null, 4));
   console.log("Arquivo " + filename + " criado com sucesso.");
+
+  if (_.indexOf(process.argv, '--debug') > 0) {
+    const filenameOriginal = 'exported-categories-' + website + '-' + getFormattedTime() + '-not-formated.json';
+    fs.writeFileSync(filenameOriginal, JSON.stringify(json, null, 4));
+    console.log("Arquivo " + filenameOriginal + " (com as categorias sem formatação) criado com sucesso.");
+  }
 }
 
 // RUN
